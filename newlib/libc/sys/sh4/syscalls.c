@@ -19,7 +19,7 @@
 #define DEBUG_MAX_COLS    40
 #define DEBUG_MAX_ROWS    37
 
-#define DEBUG_FONTBASE    0x8062F4C8
+#define DEBUG_FONTBASE    0x80633F50
 
 #define DEBUG_COLOR_OUT   0xFFFF
 
