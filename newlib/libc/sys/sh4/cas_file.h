@@ -49,68 +49,6 @@
 /// @}
 
 /**
- * Retrieves the year from a @c struct @ref stat date field.
- * 
- * @param date The date field from a @c struct @ref stat.
- * @return The year encoded in the date field.
- */
-uint16_t statDateYear(uint16_t date) {
-	return ((date >> 9) & 0b1111111) + 1980;
-}
-
-/**
- * Retrieves the month from a @c struct @ref stat date field.
- * 
- * @param date The date field from a @c struct @ref stat.
- * @return The month encoded in the date field.
- */
-uint16_t statDateMonth(uint16_t date) {
-	return (date >> 5) & 0b1111;
-}
-
-/**
- * Retrieves the day from a @c struct @ref stat date field.
- * 
- * @param date The date field from a @c struct @ref stat.
- * @return The day encoded in the date field.
- */
-uint16_t statDateDay(uint16_t date) {
-	return date & 0b11111;
-}
-
-/**
- * Retrieves the hour from a @c struct @ref stat time field.
- * 
- * @param time The time field from a @c struct @ref stat.
- * @return The hour encoded in the time field.
- */
-uint16_t statTimeHour(uint16_t time) {
-	return (time >> 11) & 0b11111;
-}
-
-/**
- * Retrieves the minute from a @c struct @ref stat time field.
- * 
- * @param time The time field from a @c struct @ref stat.
- * @return The minute encoded in the time field.
- */
-uint16_t statTimeMinute(uint16_t time) {
-	return (time >> 5) & 0b111111;
-}
-
-/**
- * Retrieves the second from a @c struct @ref stat time field.
- * 
- * Has a maximum resolution of 2 seconds.
- * 
- * @param time The time field from a @c struct @ref stat.
- * @return The second encoded in the time field.
- */
-uint16_t statTimeSecond(uint16_t time) {
-	return (time & 0b11111) * 2;
-}
-
-/**
  * Information about a file as retrieved from @ref fstat or @ref stat.
  * 
  * Dates and times are stored as a bitfield. The values they represent can be
@@ -217,81 +155,13 @@ struct cas_stat {
 	uint16_t lastAccessedDate;
 };
 
-enum FindEntryType {
-    EntryTypeFile = 0x1,
-    EntryTypeDirectory = 0x5
-};
-
-/**
- * Information about a file/directory, as returned from @ref findFirst or
- * @ref findNext.
- */
-struct findInfo {
-	uint8_t unknown0[4];
-
-	/// The type of entry which was located.
-	enum FindEntryType type;
-
-	uint8_t unknown1[2];
-	
-	/**
-	 * The size of the entry, in bytes. If the entry is a directory, @c size is
-	 * zero.
-	 */
-	uint32_t size;
-	
-	uint8_t unknown2[8];
-};
-
 /**
  * Closes an open file.
  *
  * @param fd The file descriptor for the open file.
  * @return 0 on success, or a negative error code on failure.
  */
-int cas_close(int fd);
-
-/**
- * Closes a find handle.
- * 
- * Very, very, very bad things happen if a find handle is not closed.
- * 
- * @param findHandle The find handle to close.
- * @return 0 on success, or a negative error code on failure.
- */
-int findClose(int findHandle);
-
-/**
- * Starts a find operation, locating files matching a specific path.
- * 
- * Can be used to list the contents of a directory by using a wildcard. For
- * example, passing the path @c L"\\fls0\\*" or @c L"\\fls0\\*.*" matches all
- * files and directories on the calculator's flash (not recursive, though).
- * 
- * To find the next file/directory which matches the path, call @ref findNext,
- * passing in the find handle returned by this function. Ensure the find handle
- * is closed using @ref findClose when the find operation is finished. Bad
- * things happen if the handle is not closed.
- * 
- * @param[in] path The path to search. May contain wildcards.
- * @param[out] findHandle The find handle created. Must be closed when the find
- * operation is finished.
- * @param[out] name The name of the file/directory found.
- * @param[out] findInfoBuf Information about the found file.
- * @return 0 on success, or a negative error code on failure.
- */
-int findFirst(const wchar_t *path, int *findHandle, wchar_t *name, struct findInfo *findInfoBuf);
-
-/**
- * Returns information about the next matching file/directory in a find
- * operation.
- * 
- * @param findHandle The find handle returned from @ref findFirst.
- * @param[out] name The name of the file/directory found.
- * @param[out] findInfoBuf Information about the found file.
- * @return 0 on success, or a negative error code on failure.
- */
-int findNext(int findHandle, wchar_t *name, struct findInfo *findInfoBuf);
+extern int (*cas_close)(int fd);
 
 /**
  * Retrieves information about an open file.
@@ -300,20 +170,8 @@ int findNext(int findHandle, wchar_t *name, struct findInfo *findInfoBuf);
  * @param[out] buf The retrieved information about the file.
  * @return 0 on success, or a negative error code on failure.
  */
-int cas_fstat(int fd, struct cas_stat *buf);
+extern int (*cas_fstat)(int fd, struct cas_stat *buf);
 
-/**
- * Retrieves the memory address of a file.
- *
- * If the file is empty or the offset would point outside of the file,
- * @c EINVAL is returned.
- *
- * @param fd The file descriptor of an open file.
- * @param offset An offset to apply to the pointer to the file's data.
- * @param[out] addr The address of the file's data.
- * @return 0 on success, or a negative error code on failure.
- */
-int getAddr(int fd, int offset, const void **addr);
 
 /**
  * Repositions the file offset of the file descriptor. The new position depends
@@ -324,7 +182,7 @@ int getAddr(int fd, int offset, const void **addr);
  * @param whence Where @p offset is relative to.
  * @return The new file offset on success, or a negative error code on failure.
  */
-int cas_lseek(int fd, int offset, int whence);
+extern int (*cas_lseek)(int fd, int offset, int whence);
 
 /**
  * Creates a directory.
@@ -332,7 +190,7 @@ int cas_lseek(int fd, int offset, int whence);
  * @param[in] path The path to the directory to be created.
  * @return 0 on success, or a negative error code on failure.
  */
-int cas_mkdir(const char *path);
+extern int (*cas_mkdir)(const char *path);
 
 /**
  * Opens a file on the file system.
@@ -344,7 +202,7 @@ int cas_mkdir(const char *path);
  * @param flags A bitfield describing the mode in which to open the file.
  * @return A file descriptor on success, or a negative error code on failure.
  */
-int cas_open(const char *path, int flags);
+extern int (*cas_open)(const char *path, int flags);
 
 /**
  * Reads up to @c count bytes from a file, and stores them in @c buf.
@@ -358,24 +216,7 @@ int cas_open(const char *path, int flags);
  * @return The number of bytes read on success, or a negative error code on
  * failure.
  */
-int cas_read(int fd, void *buf, int count);
-
-/**
- * Deletes a file or directory.
- *
- * @param[in] path The path to the file or directory to be deleted.
- * @return 0 on success, or a negative error code on failure.
- */
-int cas_remove(const char *path);
-
-/**
- * Renames a file or directory.
- *
- * @param[in] oldPath The path to the file or directory to be renamed.
- * @param[in] newPath The path to the new name for the file or directory.
- * @return 0 on success, or a negative error code on failure.
- */
-int cas_rename(const char *oldPath, const char *newPath);
+extern int (*cas_read)(int fd, void *buf, int count);
 
 /**
  * Retrieves information about a file.
@@ -384,7 +225,7 @@ int cas_rename(const char *oldPath, const char *newPath);
  * @param[out] buf The retrieved information about the file.
  * @return 0 on success, or a negative error code on failure.
  */
-int cas_stat(const char *path, struct cas_stat *buf);
+extern int (*cas_stat)(const char *path, struct cas_stat *buf);
 
 /**
  * Writes @c count bytes from @c buf to a file.
@@ -395,4 +236,4 @@ int cas_stat(const char *path, struct cas_stat *buf);
  * @return The number of bytes written on success, or a negative error code on
  * failure.
  */
-int cas_write(int fd, const void *buf, int count);
+extern int (*cas_write)(int fd, const void *buf, int count);

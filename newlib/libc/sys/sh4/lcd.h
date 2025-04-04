@@ -7,7 +7,9 @@
 #define LCD_WIDTH   320
 #define LCD_HEIGHT  528
 
-#define LCD_Refresh ((void (*)(void))0x800373AC)
-#define LCD_Print   ((void (*)(int, int, int, int, const char *, ...))8002DBB0)
+extern void (*cas_LCD_Refresh)(void);
+extern void (*cas_Debug_Printf)(int, int, int, int, const char *, ...);
+#define LCD_Refresh cas_LCD_Refresh
+#define LCD_Print cas_Debug_Printf
 
 #endif

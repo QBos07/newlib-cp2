@@ -1,4 +1,5 @@
 #include <_ansi.h>
+#include <stdint.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -19,7 +20,8 @@
 #define DEBUG_MAX_COLS    40
 #define DEBUG_MAX_ROWS    37
 
-#define DEBUG_FONTBASE    0x80633F50
+extern uintptr_t cas_fontbase;
+#define DEBUG_FONTBASE    cas_fontbase
 
 #define DEBUG_COLOR_OUT   0xFFFF
 
@@ -475,7 +477,7 @@ _sbrk (int incr)
 void
 _exit (int status)
 {
-  _exit_address();
+  _exit_address(status);
 }
 
 int

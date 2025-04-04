@@ -1,3 +1,3 @@
 if MAY_SUPPLY_SYSCALLS
-libc_a_SOURCES += %D%/syscalls.c %D%/cas_file.S %D%/crt0.S 
+libc_a_SOURCES += %D%/malloc.c %D%/syscalls.c %D%/impl.c %D%/crt0.S 
 endif
