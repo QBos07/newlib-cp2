@@ -83,6 +83,7 @@ init_nl:
     mov	    r0, r4
 
 .global __exit_address
+.type __exit_address, @function
 __exit_address: ! r4: exit status
     mov     r4, r10
 
