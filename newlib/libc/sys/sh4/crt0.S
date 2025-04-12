@@ -18,6 +18,8 @@ load_address:
 
 .global _start
 .set _start, start
+.global __start
+.set __start, start
 
 .section .bootstrap.text, "ax"
 actual_start: ! r4: argc, r5: argv: r6: envp
@@ -52,30 +54,20 @@ no_environ:
     mov     r5, r9
     jsr     @r0
     mov     r6, r10
+    mov.l   init_k, r0
+    jsr     @r0
 
-    mov.l   ctors_k, r11
-    mov.l   ctors_k, r12
-    cmp/hs  r12, r11
-    bt      init_nl
-init_l:
-    mov.l   @r11+, r1
-    jsr     @r1
-    nop
-    cmp/hs  r12, r11
-    bf      init_l
+    ! backup stack pointer and set return address for exit
+    mov.l   sp_bak, r11
 
-init_nl:
     mov     r8, r4
     mov     r9, r5
     mov     r10, r6
 
-    ! backup stack pointer and set return address for exit
-    mov.l   sp_bak, r0
-
     ! call main
     mov.l   main_k, r1
     jsr	    @r1
-    mov.l   r15, @r0
+    mov.l   r15, @r11
 
     ! call exit
     mov.l   exit_k, r1
@@ -87,17 +79,8 @@ init_nl:
 __exit_address: ! r4: exit status
     mov     r4, r10
 
-    mov.l   dtors_k, r8
-    mov.l   dtors_end_k, r9
-    cmp/hs  r9, r8
-    bt      fini_nl
-fini_l:
-    mov.l   @r8+, r1
-    jsr     @r1
-    nop
-    cmp/hs  r9, r8
-    bf      fini_l
-fini_nl:
+    mov.l   fini_k, r0
+    jsr     @r0
 
     ! restore stack pointer
     mov.l   sp_bak, r8
@@ -127,18 +110,10 @@ main_k:
     .long   _main
 exit_k:
     .long   _exit
-ctors_k:
-    .long   ___ctors
-    .weak   ___ctors
-ctors_end_k:
-    .long   ___ctors_end
-    .weak   ___ctors_end
-dtors_k:
-    .long   ___dtors
-    .weak   ___dtors
-dtors_end_k:
-    .long   ___dtors_end
-    .weak   ___dtors_end
+init_k:
+    .long   ___libc_init_array
+fini_k:
+    .long   ___libc_fini_array
 environ_k:
     .long   _environ
     .weak   _environ
