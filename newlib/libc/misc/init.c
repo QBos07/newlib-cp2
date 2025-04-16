@@ -16,10 +16,10 @@
 #ifdef _HAVE_INITFINI_ARRAY
 
 /* These magic symbols are provided by the linker.  */
-extern void (*__preinit_array_start []) (void) __attribute__((weak));
-extern void (*__preinit_array_end []) (void) __attribute__((weak));
-extern void (*__init_array_start []) (void) __attribute__((weak));
-extern void (*__init_array_end []) (void) __attribute__((weak));
+extern void (*__preinit_array_start []) (void) __asm__ ("__preinit_array_start") __attribute__((weak));
+extern void (*__preinit_array_end []) (void) __asm__ ("__preinit_array_end") __attribute__((weak));
+extern void (*__init_array_start []) (void) __asm__ ("__init_array_start") __attribute__((weak));
+extern void (*__init_array_end []) (void) __asm__ ("__init_array_end") __attribute__((weak));
 
 #ifdef _HAVE_INIT_FINI
 extern void _init (void);
