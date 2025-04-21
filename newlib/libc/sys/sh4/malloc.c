@@ -1,6 +1,7 @@
 #include <reent.h>
 #include <stdint.h>
 #include <string.h>
+#include <sys/types.h>
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
@@ -56,27 +57,38 @@ _realloc_r (struct _reent *reent,
     size_t new_size) 
 {
     void *block = NULL;
+    size_t *old_size_ptr = (size_t *)ptr - 1;
+
+    if (new_size == 0) 
+    {
+        if (ptr) free(ptr);
+        return NULL;
+    }
     
-    if (new_size > 0) 
+    if (new_size > *old_size_ptr) 
     {
         block = _malloc_r(reent, new_size);
 
-        if (!block) 
-        {
-            return NULL;
-        }
-    }
+        if (!block || !ptr) return block;
 
-    if (!ptr)
-    {
+        memcpy(block, ptr, MIN(*old_size_ptr, new_size));
+        free(ptr);
+        
         return block;
     }
 
-    /* Right before the data there is a long keeping track of the size */
-    memcpy(block, ptr, MIN(*(((unsigned long *)ptr)-1), new_size));
-    free(ptr);
+    new_size = (new_size + (4 - 1)) % 4; // round up to 4 bytes
+
+    size_t diff = *old_size_ptr - new_size;
+
+    if (diff > sizeof(size_t) + sizeof(void *)) return ptr;
     
-    return block;
+    // construct heap block and donate it
+    *old_size_ptr = new_size;
+    *((size_t *)((uintptr_t)ptr + new_size)) = diff;
+    free((void *)((uintptr_t)ptr + new_size));
+
+    return ptr;
 }
 
 void *

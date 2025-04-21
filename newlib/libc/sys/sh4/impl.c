@@ -29,7 +29,7 @@ REGISTER_SYMBOL(File_Stat, cas_stat)
 REGISTER_SYMBOL(Mem_Malloc, cas_malloc)
 REGISTER_SYMBOL(Mem_Free, cas_free)
 
-static symbol_entry *symbols[] = {
+static symbol_entry * const symbols[] = {
     &cas_LCD_Refresh,
     &cas_Debug_Printf,
 
@@ -51,14 +51,14 @@ static symbol_entry *symbols[] = {
 #define SAFE_GUARD ((const char *)0x814fffe0)
 #define SAFE_GUARD_SIZE 16
 
-#define nullptr ((void *)0x00000000)
+#define nullptr ((void *)NULL)
 
 static bool checkSafeGuard(const char * const other) {
     return strncmp(SAFE_GUARD, other, SAFE_GUARD_SIZE) == 0;
 }
 
 static const void ** findFunc(const char * const name) {
-    for (symbol_entry **entry = symbols; entry < symbols + sizeof(symbols) / sizeof(entry); entry++)
+    for (symbol_entry * const * entry = symbols; entry < symbols + sizeof(symbols) / sizeof(entry); entry++)
         if (strcmp((*entry)->name, name) == 0)
             return &(*entry)->ptr;
 
@@ -101,7 +101,9 @@ bool ___relink(const uint8_t * const mapping, size_t len) {
 __attribute__((weak)) char ** environ;
 
 #pragma GCC diagnostic push
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wprio-ctor-dtor"
+#endif
 __attribute__((constructor(0))) void ___relocate_hhk(void) {
     char * env_var = getenv("HHK_SYMBOL_TABLE");
     if (env_var == nullptr)

@@ -133,8 +133,8 @@ endif
 if HAVE_LIBC_MACHINE_RX
 include %D%/rx/Makefile.inc
 endif
-if HAVE_LIBC_MACHINE_SH
-include %D%/sh/Makefile.inc
+if HAVE_LIBC_MACHINE_SH4
+include %D%/sh4/Makefile.inc
 endif
 if HAVE_LIBC_MACHINE_SPARC
 include %D%/sparc/Makefile.inc

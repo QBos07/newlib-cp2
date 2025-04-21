@@ -7920,7 +7920,7 @@ if test -z "${HAVE_LIBC_MACHINE_RX_TRUE}" && test -z "${HAVE_LIBC_MACHINE_RX_FAL
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_LIBC_MACHINE_SH4_TRUE}" && test -z "${HAVE_LIBC_MACHINE_SH4_FALSE}"; then
-  as_fn_error $? "conditional \"HAVE_LIBC_MACHINE_SH\" was never defined.
+  as_fn_error $? "conditional \"HAVE_LIBC_MACHINE_SH4\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_LIBC_MACHINE_SPARC_TRUE}" && test -z "${HAVE_LIBC_MACHINE_SPARC_FALSE}"; then

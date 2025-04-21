@@ -7,11 +7,13 @@
 #include <stdbool.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdnoreturn.h>
 #include "cas_file.h"
-#include "crt0.h"
 #include "power.h"
 #include "tmu.h"
 #include "lcd.h"
+
+noreturn void _exit_address(int status);
 
 #define DEBUG_CHAR_WIDTH 	8
 #define DEBUG_CHAR_HEIGHT	12
@@ -25,17 +27,16 @@ extern uintptr_t cas_fontbase;
 
 #define DEBUG_COLOR_OUT   0xFFFF
 
-uint32_t counter_underflows __attribute__((section(".bootstrap.data")));
+uint32_t counter_underflows;
 
-uint8_t print_col __attribute__((section(".bootstrap.data")));
-uint8_t print_row __attribute__((section(".bootstrap.data")));
-uint32_t used_rows __attribute__((section(".bootstrap.data")));
+uint8_t print_col;
+uint8_t print_row;
+uint32_t used_rows;
 
 char debug_lines[DEBUG_MAX_ROWS][DEBUG_MAX_COLS];
 
 /* setup hardware */
 void 
-__attribute__((section(".bootstrap.text")))
 cas_setup ()
 {
   counter_underflows = 0;
