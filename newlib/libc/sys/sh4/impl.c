@@ -120,4 +120,24 @@ __attribute__((constructor(0))) void ___relocate_hhk(void) {
     if (!___relink(mapping, len))
         return;
 }
+
+#define NO_CAS_DECLS
+#include "debug.h"
+
+__attribute__((weak)) typeof(debug_lines) debug_lines = nullptr;
+static bool debug_lines_malloced = false;
+
+static __attribute__((constructor(3))) void init_debug(void) {
+    if (debug_lines != nullptr)
+        return;
+    debug_lines = malloc(sizeof(*debug_lines));
+    debug_lines_malloced = true;
+}
+
+static __attribute__((destructor)) void free_debug(void) {
+    if (!debug_lines_malloced)
+        return;
+    free(debug_lines);
+    debug_lines = nullptr;
+}
 #pragma GCC diagnostic pop

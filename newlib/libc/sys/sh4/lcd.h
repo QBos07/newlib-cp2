@@ -1,7 +1,6 @@
 #ifndef LCD_H
 #define LCD_H
 
-
 #define FRAMEBUFFER ((uint16_t *)0x8C000000)
 
 #define LCD_WIDTH   320

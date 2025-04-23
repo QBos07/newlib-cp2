@@ -12,28 +12,15 @@
 #include "power.h"
 #include "tmu.h"
 #include "lcd.h"
+#include "debug.h"
 
 noreturn void _exit_address(int status);
-
-#define DEBUG_CHAR_WIDTH 	8
-#define DEBUG_CHAR_HEIGHT	12
-#define DEBUG_LINE_HEIGHT	14
-
-#define DEBUG_MAX_COLS    40
-#define DEBUG_MAX_ROWS    37
-
-extern uintptr_t cas_fontbase;
-#define DEBUG_FONTBASE    cas_fontbase
-
-#define DEBUG_COLOR_OUT   0xFFFF
 
 uint32_t counter_underflows;
 
 uint8_t print_col;
 uint8_t print_row;
 uint32_t used_rows;
-
-char debug_lines[DEBUG_MAX_ROWS][DEBUG_MAX_COLS];
 
 /* setup hardware */
 void 
@@ -138,7 +125,7 @@ void debug_print_all (void)
       line %= DEBUG_MAX_ROWS;
     }
 
-    debug_print_line(debug_lines[i], line);
+    debug_print_line((*debug_lines)[i], line);
   }
 }
 
@@ -167,7 +154,7 @@ void debug_cursor_inc (void)
 clear_row:
   for (uint8_t i = 0; i < DEBUG_MAX_COLS; i++)
   {
-    debug_lines[print_row][i] = '\0';
+    (*debug_lines)[print_row][i] = '\0';
   }
 }
 
@@ -217,7 +204,7 @@ debug_add_string (const char *str,
     }
 
     debug_cursor_inc();
-    debug_lines[print_row][print_col] = str[i];
+    (*debug_lines)[print_row][print_col] = str[i];
   }
 }
 
