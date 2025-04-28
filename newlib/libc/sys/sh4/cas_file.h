@@ -1,6 +1,8 @@
 #pragma once
 #include <stdint.h>
 
+#include "impl.h"
+
 /* Modified file.hpp from hollyhock sdk */
 
 /**
@@ -161,7 +163,7 @@ struct cas_stat {
  * @param fd The file descriptor for the open file.
  * @return 0 on success, or a negative error code on failure.
  */
-extern int (*cas_close)(int fd);
+CAS_FUN(int,cas_close,(int fd))
 
 /**
  * Retrieves information about an open file.
@@ -170,7 +172,7 @@ extern int (*cas_close)(int fd);
  * @param[out] buf The retrieved information about the file.
  * @return 0 on success, or a negative error code on failure.
  */
-extern int (*cas_fstat)(int fd, struct cas_stat *buf);
+CAS_FUN(int,cas_fstat,(int fd, struct cas_stat *buf))
 
 
 /**
@@ -182,7 +184,7 @@ extern int (*cas_fstat)(int fd, struct cas_stat *buf);
  * @param whence Where @p offset is relative to.
  * @return The new file offset on success, or a negative error code on failure.
  */
-extern int (*cas_lseek)(int fd, int offset, int whence);
+CAS_FUN(int,cas_lseek,(int fd, int offset, int whence))
 
 /**
  * Creates a directory.
@@ -190,7 +192,7 @@ extern int (*cas_lseek)(int fd, int offset, int whence);
  * @param[in] path The path to the directory to be created.
  * @return 0 on success, or a negative error code on failure.
  */
-extern int (*cas_mkdir)(const char *path);
+CAS_FUN(int,cas_mkdir,(const char *path))
 
 /**
  * Opens a file on the file system.
@@ -202,7 +204,7 @@ extern int (*cas_mkdir)(const char *path);
  * @param flags A bitfield describing the mode in which to open the file.
  * @return A file descriptor on success, or a negative error code on failure.
  */
-extern int (*cas_open)(const char *path, int flags);
+CAS_FUN(int,cas_open,(const char *path, int flags))
 
 /**
  * Reads up to @c count bytes from a file, and stores them in @c buf.
@@ -216,7 +218,7 @@ extern int (*cas_open)(const char *path, int flags);
  * @return The number of bytes read on success, or a negative error code on
  * failure.
  */
-extern int (*cas_read)(int fd, void *buf, int count);
+CAS_FUN(int,cas_read,(int fd, void *buf, int count))
 
 /**
  * Retrieves information about a file.
@@ -225,7 +227,7 @@ extern int (*cas_read)(int fd, void *buf, int count);
  * @param[out] buf The retrieved information about the file.
  * @return 0 on success, or a negative error code on failure.
  */
-extern int (*cas_stat)(const char *path, struct cas_stat *buf);
+CAS_FUN(int,cas_stat,(const char *path, struct cas_stat *buf))
 
 /**
  * Writes @c count bytes from @c buf to a file.
@@ -236,4 +238,4 @@ extern int (*cas_stat)(const char *path, struct cas_stat *buf);
  * @return The number of bytes written on success, or a negative error code on
  * failure.
  */
-extern int (*cas_write)(int fd, const void *buf, int count);
+CAS_FUN(int,cas_write,(int fd, const void *buf, int count))

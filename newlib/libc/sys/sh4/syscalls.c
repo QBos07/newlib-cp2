@@ -316,7 +316,7 @@ int
 mkdir (const char *path, 
   mode_t mode)
 {
-  int ret = cas_mkdir(path);
+  int ret = cas_mkdir.f(path);
   return cas_error_to_errno(ret);
 }
 
@@ -332,7 +332,7 @@ _read(
     return 0;
   }
 
-  int ret = cas_read(file, ptr, len);
+  int ret = cas_read.f(file, ptr, len);
   return cas_error_to_errno(ret);
 }
 
@@ -342,7 +342,7 @@ _lseek(
   int ptr,
   int dir)
 {
-  int ret = cas_lseek(file, ptr, dir);
+  int ret = cas_lseek.f(file, ptr, dir);
   return cas_error_to_errno(ret);
 }
 
@@ -368,7 +368,7 @@ _write(
     return len;
   }
 
-  int ret = cas_write(file, ptr, len);
+  int ret = cas_write.f(file, ptr, len);
   return cas_error_to_errno(ret);
 }
 
@@ -377,7 +377,7 @@ _open(const char *path,
   int flags,
   ...)
 {
-  int ret = cas_open(path, flags_to_cas_flags(flags));
+  int ret = cas_open.f(path, flags_to_cas_flags(flags));
   return cas_error_to_errno(ret);
 }
 
@@ -390,7 +390,7 @@ _close(int file)
     return 0;
   }
 
-  int ret = cas_close(file);
+  int ret = cas_close.f(file);
   return cas_error_to_errno(ret);
 }
 
@@ -413,7 +413,7 @@ _fstat(int file,
   struct stat *st)
 {
   struct cas_stat stat;
-  int ret = cas_fstat(file, &stat);
+  int ret = cas_fstat.f(file, &stat);
 
   if (ret < 0) {
     return cas_error_to_errno(ret);
@@ -429,7 +429,7 @@ _stat (const char *path,
   struct stat *st)
 {
   struct cas_stat stat;
-  int ret = cas_stat(path, &stat);
+  int ret = cas_stat.f(path, &stat);
 
   if (ret < 0) {
     return cas_error_to_errno(ret);
@@ -551,7 +551,7 @@ _pipe (int *fd)
 /* This is only provided because _gettimeofday_r and _times_r are
    defined in the same module, so we avoid a link error.  */
 clock_t
-_times (struct tms *tp)
+_times (/*struct tms*/void *tp)
 {
   errno = ENOSYS;
   return -1;
@@ -584,11 +584,10 @@ usleep (useconds_t usec)
   struct timeval curtime;
   _gettimeofday(&starttime, NULL);
 
-  /* FIXME: This will break when it is called while the counter underflows */
   do 
   { 
     _gettimeofday(&curtime, NULL);
-  } while ((curtime.tv_usec - starttime.tv_usec) < usec);
+  } while ((starttime.tv_usec + usec) >= curtime.tv_usec);
 
   return 0;  
 }

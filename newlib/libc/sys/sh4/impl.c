@@ -1,16 +1,22 @@
 #include <stddef.h>
 #include <stdint.h>
-#include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
 
-typedef struct {
-    const void * ptr;
-    const char * const name;
-} symbol_entry;
+#if __STDC_VERSION__ < 202311L //C23 - defines nullptr and booleans
+#include <stdbool.h>
+#define nullptr ((void *)NULL)
+#endif
+
+#include "impl.h"
+
+#include "cas_file.h"
+#include "cas_memory.h"
+#include "debug.h"
+#include "lcd.h"
 
 #define REGISTER_SYMBOL(name, sym) \
-    symbol_entry sym = { (void *)(0xBEEF0001 + __LINE__ * 2), #name };
+    typeof(sym) sym = { .s = { (void *)(0xBEEF0001 + __LINE__ * 2), #name } };
 
 REGISTER_SYMBOL(LCD_Refresh, cas_LCD_Refresh)
 REGISTER_SYMBOL(Debug_Printf, cas_Debug_Printf)
@@ -30,28 +36,26 @@ REGISTER_SYMBOL(Mem_Malloc, cas_malloc)
 REGISTER_SYMBOL(Mem_Free, cas_free)
 
 static symbol_entry * const symbols[] = {
-    &cas_LCD_Refresh,
-    &cas_Debug_Printf,
+    &cas_LCD_Refresh.s,
+    &cas_Debug_Printf.s,
 
-    &cas_fontbase,
+    &cas_fontbase.s,
 
-    &cas_open,
-    &cas_close,
-    &cas_read,
-    &cas_fstat,
-    &cas_mkdir,
-    &cas_lseek,
-    &cas_write,
-    &cas_stat,
+    &cas_open.s,
+    &cas_close.s,
+    &cas_read.s,
+    &cas_fstat.s,
+    &cas_mkdir.s,
+    &cas_lseek.s,
+    &cas_write.s,
+    &cas_stat.s,
 
-    &cas_malloc,
-    &cas_free,
+    &cas_malloc.s,
+    &cas_free.s,
 };
 
 #define SAFE_GUARD ((const char *)0x814fffe0)
 #define SAFE_GUARD_SIZE 16
-
-#define nullptr ((void *)NULL)
 
 static bool checkSafeGuard(const char * const other) {
     return strncmp(SAFE_GUARD, other, SAFE_GUARD_SIZE) == 0;
@@ -120,9 +124,6 @@ __attribute__((constructor(0))) void ___relocate_hhk(void) {
     if (!___relink(mapping, len))
         return;
 }
-
-#define NO_CAS_DECLS
-#include "debug.h"
 
 __attribute__((weak)) typeof(debug_lines) debug_lines = nullptr;
 static bool debug_lines_malloced = false;

@@ -3,22 +3,21 @@
 #include <string.h>
 #include <sys/types.h>
 
-#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+#include "cas_memory.h"
 
-extern void *(*cas_malloc)(size_t size);
-extern void (*cas_free)(void *ptr);
+#define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
 // Calling a function pointer needs one more level of indirection
 void *
 malloc (size_t size) 
 {
-    return cas_malloc(size);
+    return cas_malloc.f(size);
 }
 
 void
 free (void *ptr) 
 {
-    cas_free(ptr);
+    cas_free.f(ptr);
 }
 
 void *
